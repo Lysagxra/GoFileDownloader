@@ -11,9 +11,9 @@ from argparse import ArgumentParser, Namespace
 from collections import deque
 from dataclasses import dataclass, field
 
-DOWNLOAD_FOLDER = "Downloads"    # The folder where downloaded files will be stored.
-URLS_FILE = "URLs.txt"           # The file containing the list of URLs to process.
-SESSION_LOG = "session_log.txt"  # The file used to log session errors.
+DOWNLOAD_FOLDER = "Downloads"  # The folder where downloaded files will be stored.
+URLS_FILE = "URLs.txt"         # The file containing the list of URLs to process.
+SESSION_LOG = "session.log"    # The file used to log session errors.
 
 # ============================
 # API Endpoints
@@ -88,7 +88,7 @@ HTTP_STATUS_OK = 200
 
 # Base headers common for all requests
 BASE_HEADERS = {
-    "Accept-Encoding": "gzip, deflate, br",
+    "Accept-Encoding": "gzip",
     "User-Agent": "Mozilla/5.0",
     "Accept": "*/*",
     "Connection": "keep-alive",

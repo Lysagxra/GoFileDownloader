@@ -80,8 +80,8 @@ class Downloader:
         # Skip file if it already exists and is not empty
         if Path(final_path).exists():
             self.live_manager.update_log(
-                "Skipped download",
-                f"{filename} has already been downloaded.",
+                event="Skipped download",
+                details=f"{filename} has already been downloaded.",
             )
             return
 
@@ -120,9 +120,11 @@ class Downloader:
         # Base headers common for all requests
         headers = BASE_HEADERS
 
-        # If include_auth is True, add the Authorization header
+        # If 'include_auth' is True, add the 'Authorization' header for Bearer
+        # authentication and include the 'X-Website-Token' header with a specific token.
         if include_auth:
             headers["Authorization"] = f"Bearer {self.token}"
+            headers["X-Website-Token"] = "4fd6sg89d7s6"
 
         else:
             # Add Referer and Origin headers if URL is provided
@@ -160,21 +162,20 @@ class Downloader:
 
         content_url = generate_content_url(identifier, password=password)
         headers = self._prepare_headers(include_auth=True)
-        response = requests.get(content_url, headers=headers, timeout=10).json()
 
+        response = requests.get(content_url, headers=headers, timeout=10).json()
         if response["status"] != "ok":
             self.live_manager.update_log(
-                "Failed request",
-                f"Failed to get a link as response from the {content_url}.",
+                event="Failed request",
+                details=f"Failed to get a link as response from {content_url}.",
             )
             return
 
         data = response["data"]
-
         if check_password(data):
             self.live_manager.update_log(
-                "Missing password",
-                "The URL requires a valid password. "
+                event="Missing password",
+                details="The URL requires a valid password. "
                 "Please provide one to proceed.",
             )
             return

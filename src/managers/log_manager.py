@@ -77,9 +77,12 @@ class LoggerTable:
     def _create_table(self) -> Table:
         """Create a new table with the necessary columns and styles."""
         # Calculate the dynamic column widths
-        column_styles = LOG_MANAGER_CONFIG["column_styles"]
         min_column_widths = LOG_MANAGER_CONFIG["min_column_widths"]
         column_widths = self._calculate_column_widths(min_column_widths)
+
+        # List of columns to add to the table
+        column_styles = LOG_MANAGER_CONFIG["column_styles"]
+        column_names = ["Timestamp", "Event", "Details"]
 
         new_table = Table(
             box=SIMPLE,                     # Box style for the table
@@ -88,21 +91,15 @@ class LoggerTable:
             show_lines=False,               # Do not display grid lines
             border_style=self.title_color,  # Set the color of the box
         )
-        new_table.add_column(
-            f"[{self.title_color}]Timestamp",
-            style=column_styles["Timestamp"],
-            width=column_widths["Timestamp"],
-        )
-        new_table.add_column(
-            f"[{self.title_color}]Event",
-            style=column_styles["Event"],
-            width=column_widths["Event"],
-        )
-        new_table.add_column(
-            f"[{self.title_color}]Details",
-            style=column_styles["Details"],
-            width=column_widths["Details"],
-        )
+
+        # Add columns dynamically
+        for name in column_names:
+            new_table.add_column(
+                f"[{self.title_color}]{name}",
+                style=column_styles[name],
+                width=column_widths[name],
+            )
+
         return new_table
 
     def _render_table(self) -> Table:

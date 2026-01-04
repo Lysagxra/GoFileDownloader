@@ -29,7 +29,10 @@ def get_content_id(url: str) -> str | None:
 
 def generate_content_url(content_id: str, password: str | None = None) -> None:
     """Generate a URL for accessing content, optionally including a password."""
-    base_url = f"{GOFILE_API}/contents/{content_id}?wt=4fd6sg89d7s6&cache=true"
+    base_url = (
+        f"{GOFILE_API}/contents/{content_id}"
+        "?cache=true&sortField=createTime&sortDirection=1"
+    )
 
     # Only add the password if it's provided
     query_params = {}
@@ -65,7 +68,7 @@ def get_account_token() -> str:
     """Retrieve the access token for the created account."""
     headers = {
         "User-Agent": "Mozilla/5.0",
-        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Encoding": "gzip",
         "Accept": "*/*",
         "Connection": "keep-alive",
     }
