@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import logging
 import sys
+from hashlib import sha256
+from time import time
 from urllib.parse import urlencode
 
 import requests
@@ -46,6 +48,13 @@ def generate_content_url(content_id: str, password: str | None = None) -> None:
     return base_url
 
 
+def generate_website_token(account_token: str) -> str:
+    """Generate the dynamic X-Website-Token."""
+    time_window = str(int(time()) // 14400)
+    token_seed = f"Mozilla/5.0::en-US::{account_token}::{time_window}::gf2026x"
+    return sha256(token_seed.encode()).hexdigest()
+
+
 def check_response_status(response: requests.Response, filename: str) -> bool:
     """Check if the server response is valid based on status codes."""
     response_is_invalid = (
@@ -76,7 +85,7 @@ def get_account_token() -> str:
     account_response = requests.post(
         GOFILE_API_ACCOUNTS,
         headers=headers,
-        timeout=10,
+        timeout=15,
     ).json()
 
     if account_response["status"] != "ok":

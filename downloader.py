@@ -31,6 +31,7 @@ from src.general_utils import clear_terminal
 from src.gofile_utils import (
     check_response_status,
     generate_content_url,
+    generate_website_token,
     get_account_token,
     get_content_id,
 )
@@ -124,7 +125,8 @@ class Downloader:
         # authentication and include the 'X-Website-Token' header with a specific token.
         if include_auth:
             headers["Authorization"] = f"Bearer {self.token}"
-            headers["X-Website-Token"] = "4fd6sg89d7s6"
+            headers["X-Website-Token"] = generate_website_token(self.token)
+            headers["X-BL"] = "en-US"
 
         else:
             # Add Referer and Origin headers if URL is provided

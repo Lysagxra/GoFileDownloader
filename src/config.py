@@ -88,8 +88,8 @@ HTTP_STATUS_OK = 200
 
 # Base headers common for all requests
 BASE_HEADERS = {
-    "Accept-Encoding": "gzip",
     "User-Agent": "Mozilla/5.0",
+    "Accept-Encoding": "gzip",
     "Accept": "*/*",
     "Connection": "keep-alive",
     "Sec-Fetch-Dest": "empty",
