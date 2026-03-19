@@ -121,8 +121,7 @@ class Downloader:
         # Base headers common for all requests
         headers = BASE_HEADERS
 
-        # If 'include_auth' is True, add the 'Authorization' header for Bearer
-        # authentication and include the 'X-Website-Token' header with a specific token.
+        # Add authentication headers if required
         if include_auth:
             headers["Authorization"] = f"Bearer {self.token}"
             headers["X-Website-Token"] = generate_website_token(self.token)
@@ -135,7 +134,7 @@ class Downloader:
                 headers["Referer"] = adjusted_url
                 headers["Origin"] = url
 
-            # Include the Cookie header for authentication when URL is not needed
+            # Add Cookie header when URL is not needed
             headers["Cookie"] = f"accountToken={self.token}"
 
         return headers
