@@ -4,13 +4,14 @@ These configurations aim to improve modularity and readability by consolidating 
 into a single location.
 """
 
-# ============================
-# Paths and Files
-# ============================
 from argparse import ArgumentParser, Namespace
 from collections import deque
 from dataclasses import dataclass, field
+from .version import get_version_string
 
+# ============================
+# Paths and Files
+# ============================
 DOWNLOAD_FOLDER = "Downloads"  # The folder where downloaded files will be stored.
 URLS_FILE = "URLs.txt"         # The file containing the list of URLs to process.
 SESSION_LOG = "session.log"    # The file used to log session errors.
@@ -122,6 +123,12 @@ def add_common_arguments(parser: ArgumentParser) -> None:
         type=str,
         default=None,
         help="The directory where the downloaded content will be saved.",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=get_version_string(),
+        help="Show program's version and exit.",
     )
 
 
