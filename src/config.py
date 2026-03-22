@@ -7,6 +7,7 @@ into a single location.
 from argparse import ArgumentParser, Namespace
 from collections import deque
 from dataclasses import dataclass, field
+
 from .version import get_version_string
 
 # ============================
