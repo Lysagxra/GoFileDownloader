@@ -51,7 +51,7 @@ def generate_content_url(content_id: str, password: str | None = None) -> None:
 def generate_website_token(account_token: str) -> str:
     """Generate the dynamic X-Website-Token."""
     time_window = str(int(time()) // 14400)
-    token_seed = f"Mozilla/5.0::en-US::{account_token}::{time_window}::f4s58gs6"
+    token_seed = f"Mozilla/5.0::en-US::{account_token}::{time_window}::5d4f7g8sd45fsd"
     return sha256(token_seed.encode()).hexdigest()
 
 
