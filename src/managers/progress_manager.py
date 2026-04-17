@@ -1,75 +1,37 @@
-"""Module that provides a class for tracking the progress of multiple tasks.
-
-It uses the Rich library to create dynamic, formatted progress bars and tables for
-monitoring task completion.
-"""
-
-from __future__ import annotations
-
 import shutil
+from collections import deque
 
 from rich.panel import Panel
-from rich.progress import (
-    BarColumn,
-    Progress,
-    SpinnerColumn,
-    TextColumn,
-    TimeRemainingColumn,
-)
-from rich.table import Column, Table
+from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn, TimeRemainingColumn
+from rich.table import Table
 
-from src.config import (
-    PROGRESS_COLUMNS_SEPARATOR,
-    PROGRESS_MANAGER_COLORS,
-    ProgressConfig,
-)
+from src.config import PROGRESS_COLUMNS_SEPARATOR, PROGRESS_MANAGER_COLORS
 
 
 class ProgressManager:
-    """Manage and track the progress of multiple tasks."""
-
-    def __init__(
-        self,
-        task_name: str,
-        item_description: str,
-    ) -> None:
-        """Initialize a progress tracking system for a specific task."""
-        self.config = ProgressConfig(task_name, item_description)
-        self.overall_progress = create_progress_bar()
-        self.task_progress = create_progress_bar(show_time=True)
+    def __init__(self, task_name: str, item_description: str) -> None:
+        self.task_name = task_name
+        self.item_description = item_description
+        self.color = "light_cyan3"
+        self.panel_width = 40
+        self.overall_buffer = deque(maxlen=5)
+        self.overall_progress = self._create_progress_bar()
+        self.task_progress = self._create_progress_bar(show_time=True)
         self.num_tasks = 0
 
     def get_panel_width(self) -> int:
-        """Return the width of the panel."""
-        return self.config.panel_width
+        return self.panel_width
 
     def add_overall_task(self, description: str, num_tasks: int) -> None:
-        """Add an overall progress task with a given description and total tasks."""
         self.num_tasks = num_tasks
-        overall_description = adjust_description(description)
-        self.overall_progress.add_task(
-            f"[{self.config.color}]{overall_description}",
-            total=num_tasks,
-            completed=0,
-        )
+        desc = description[:8] + "..." if len(description) > 8 else description
+        self.overall_progress.add_task(f"[{self.color}]{desc}", total=num_tasks, completed=0)
 
     def add_task(self, current_task: int = 0, total: int = 100) -> int:
-        """Add an individual task to the task progress bar."""
-        task_description = (
-            f"[{self.config.color}]{self.config.item_description} "
-            f"{current_task + 1}/{self.num_tasks}"
-        )
-        return self.task_progress.add_task(task_description, total=total)
+        desc = f"[{self.color}]{self.item_description} {current_task + 1}/{self.num_tasks}"
+        return self.task_progress.add_task(desc, total=total)
 
-    def update_task(
-        self,
-        task_id: int,
-        completed: int | None = None,
-        advance: int = 0,
-        *,
-        visible: bool = True,
-    ) -> None:
-        """Update the progress of an individual task and the overall progress."""
+    def update_task(self, task_id: int, completed: int | None = None, advance: int = 0, *, visible: bool = True) -> None:
         self.task_progress.update(
             task_id,
             completed=completed if completed is not None else None,
@@ -79,7 +41,6 @@ class ProgressManager:
         self._update_overall_task(task_id)
 
     def create_progress_table(self, min_panel_width: int = 30) -> Table:
-        """Create a formatted progress table for tracking the download."""
         terminal_width, _ = shutil.get_terminal_size()
         panel_width = max(min_panel_width, terminal_width // 2)
 
@@ -87,14 +48,14 @@ class ProgressManager:
         progress_table.add_row(
             Panel.fit(
                 self.overall_progress,
-                title=f"[bold {self.config.color}]Overall Progress",
+                title=f"[bold {self.color}]Overall Progress",
                 border_style=PROGRESS_MANAGER_COLORS["overall_border_color"],
                 padding=(1, 1),
                 width=panel_width,
             ),
             Panel.fit(
                 self.task_progress,
-                title=f"[bold {self.config.color}]{self.config.task_name} Progress",
+                title=f"[bold {self.color}]{self.task_name} Progress",
                 border_style=PROGRESS_MANAGER_COLORS["task_border_color"],
                 padding=(1, 1),
                 width=panel_width,
@@ -102,54 +63,21 @@ class ProgressManager:
         )
         return progress_table
 
-    # Private methods
     def _update_overall_task(self, task_id: int) -> None:
-        """Advance the overall progress when a task is finished and remove old tasks."""
-        # Access the latest task dynamically
         current_overall_task = self.overall_progress.tasks[-1]
 
-        # If the task is finished, remove it and update the overall progress
         if self.task_progress.tasks[task_id].finished:
             self.overall_progress.advance(current_overall_task.id)
             self.task_progress.update(task_id, visible=False)
 
-        # Track completed overall tasks
         if current_overall_task.finished:
-            self.config.overall_buffer.append(current_overall_task)
+            self.overall_buffer.append(current_overall_task)
 
-        # Cleanup completed overall tasks
-        self._cleanup_completed_overall_tasks()
+        if len(self.overall_buffer) == self.overall_buffer.maxlen:
+            self.overall_progress.remove_task(self.overall_buffer.popleft().id)
 
-    def _cleanup_completed_overall_tasks(self) -> None:
-        """Remove the oldest completed overall task from the buffer."""
-        if len(self.config.overall_buffer) == self.config.overall_buffer.maxlen:
-            completed_overall_id = self.config.overall_buffer.popleft().id
-            self.overall_progress.remove_task(completed_overall_id)
-
-
-def adjust_description(description: str, max_length: int = 8) -> str:
-    """Truncate a string to a specified maximum length, adding an ellipsis."""
-    return (
-        description[:max_length] + "..."
-        if len(description) > max_length
-        else description
-    )
-
-
-def create_progress_bar(
-    columns: list[Column | str] | None = None,
-    *,
-    show_time: bool = False,
-) -> Progress:
-    """Create a progress bar for tracking download progress."""
-    if columns is None:
-        columns = [
-            SpinnerColumn(),
-            BarColumn(),
-            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
-        ]
-
-    if show_time:
-        columns += [PROGRESS_COLUMNS_SEPARATOR, TimeRemainingColumn()]
-
-    return Progress("{task.description}", *columns)
+    def _create_progress_bar(self, *, show_time: bool = False) -> Progress:
+        columns = [SpinnerColumn(), BarColumn(), TextColumn("[progress.percentage]{task.percentage:>3.0f}%")]
+        if show_time:
+            columns += [PROGRESS_COLUMNS_SEPARATOR, TimeRemainingColumn()]
+        return Progress("{task.description}", *columns)

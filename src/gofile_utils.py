@@ -1,80 +1,44 @@
-"""Module that provides utility functions for interacting with the GoFile API."""
-
-from __future__ import annotations
-
 import logging
 import sys
 from hashlib import sha256
 from time import time
 from urllib.parse import urlencode
 
-import requests
+import httpx
 
 from .config import GOFILE_API, GOFILE_API_ACCOUNTS, HTTP_STATUS_OK
 
 
 def get_content_id(url: str) -> str | None:
-    """Extract and returns the content ID from a GoFile URL."""
     try:
         if url.rstrip("/").split("/")[-2] != "d":
-            message = f"Missing ID for URL: {url}"
-            logging.error(message)
+            logging.error(f"Missing ID for URL: {url}")
             return None
-
         return url.rstrip("/").split("/")[-1]
-
     except IndexError:
-        message = f"{url} is not a valid GoFile URL."
-        logging.exception(message)
+        logging.exception(f"{url} is not a valid GoFile URL.")
         return None
 
 
-def generate_content_url(content_id: str, password: str | None = None) -> None:
-    """Generate a URL for accessing content, optionally including a password."""
-    base_url = (
-        f"{GOFILE_API}/contents/{content_id}"
-        "?cache=true&sortField=createTime&sortDirection=1"
-    )
-
-    # Only add the password if it's provided
-    query_params = {}
-    if password:
-        query_params["password"] = password
-
-    # If there are additional query parameters, append them
-    if query_params:
-        return f"{base_url}&{urlencode(query_params)}"
-
-    return base_url
+def generate_content_url(content_id: str, password: str | None = None) -> str:
+    base_url = f"{GOFILE_API}/contents/{content_id}?cache=true&sortField=createTime&sortDirection=1"
+    return f"{base_url}&{urlencode({'password': password})}" if password else base_url
 
 
 def generate_website_token(account_token: str) -> str:
-    """Generate the dynamic X-Website-Token."""
     time_window = str(int(time()) // 14400)
     token_seed = f"Mozilla/5.0::en-US::{account_token}::{time_window}::5d4f7g8sd45fsd"
     return sha256(token_seed.encode()).hexdigest()
 
 
-def check_response_status(response: requests.Response, filename: str) -> bool:
-    """Check if the server response is valid based on status codes."""
-    response_is_invalid = (
-        response.status_code in (403, 404, 405, 500)
-        or response.status_code != HTTP_STATUS_OK
-    )
-
-    if response_is_invalid:
-        message = (
-             f"Invalid response for {filename}. "
-            "Status code: {response.status_code}"
-        )
-        logging.error(message)
+def check_response_status(response: httpx.Response, filename: str) -> bool:
+    if response.status_code != HTTP_STATUS_OK:
+        logging.error(f"Invalid response for {filename}. Status code: {response.status_code}")
         return False
-
     return True
 
 
 def get_account_token() -> str:
-    """Retrieve the access token for the created account."""
     headers = {
         "User-Agent": "Mozilla/5.0",
         "Accept-Encoding": "gzip",
@@ -82,11 +46,8 @@ def get_account_token() -> str:
         "Connection": "keep-alive",
     }
 
-    account_response = requests.post(
-        GOFILE_API_ACCOUNTS,
-        headers=headers,
-        timeout=15,
-    ).json()
+    with httpx.Client(timeout=15.0) as client:
+        account_response = client.post(GOFILE_API_ACCOUNTS, headers=headers).json()
 
     if account_response["status"] != "ok":
         logging.error("Account creation failed.")

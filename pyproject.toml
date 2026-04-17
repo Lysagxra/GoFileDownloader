@@ -1,0 +1,43 @@
+[project]
+name = "gofile-downloader"
+version = "1.0.4"
+description = "Modern async downloader for GoFile"
+authors = [{name = "Lysagxra"}]
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.28.1",
+    "rich>=15.0.0",
+]
+license = {text = "GPL-3.0"}
+readme = "README.md"
+
+[project.urls]
+Homepage = "https://github.com/Lysagxra/GoFileDownloader"
+Repository = "https://github.com/Lysagxra/GoFileDownloader"
+
+[project.scripts]
+gofile-dl = "downloader:main"
+gofile-batch = "main:main"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "SIM", "RUF"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]

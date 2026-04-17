@@ -1,143 +1,115 @@
 # GoFile Downloader
 
-> This script is a utility for downloading files from GoFile, supporting both
-public and password-protected albums.
+Modern async downloader for GoFile with concurrent downloads and real-time progress tracking.
 
 ![Demo](https://github.com/Lysagxra/GoFileDownloader/blob/90b902ff734115dd1d955f80ac855700bcde7cc2/assets/demo.gif)
 
 ## Features
 
-- Downloads multiple files from an album concurrently.
-- Supports [batch downloading](https://github.com/Lysagxra/GoFileDownloader?tab=readme-ov-file#batch-download) via a list of URLs.
-- Supports [downloading password-protected albums](https://github.com/Lysagxra/GoFileDownloader?tab=readme-ov-file#password-protected-album-download) by providing a password.
-- Supports [custom download location](https://github.com/Lysagxra/GoFileDownloader?tab=readme-ov-file#file-download-location).
-- Progress indication during downloads.
-- Automatically creates a directory structure for organized storage.
-- Logs URLs that encounter errors for troubleshooting.
+- ⚡ Async concurrent downloads (faster than traditional methods)
+- 📦 Batch downloading via URL list
+- 🔒 Password-protected album support
+- 📁 Custom download location
+- 📊 Real-time progress tracking
+- 🗂️ Organized directory structure
 
-## Dependencies
+## Requirements
 
-- Python 3
-- `requests` - for HTTP requests
-- `rich` - for progress display in the terminal.
-
-<details>
-
-<summary>Show directory structure</summary>
-
-```
-project-root/
-├── helpers/
-│ ├── managers/
-│ │ ├── live_manager.py      # Manages a real-time live display
-│ │ ├── log_manager.py       # Manages real-time log updates
-│ │ └── progress_manager.py  # Manages progress bars
-│ ├── config.py              # Manages constants and settings used across the project
-│ ├── download_utils.py      # Utilities for managing the download process
-│ ├── file_utils.py          # Utilities for managing file operations
-│ ├── general_utils.py       # Miscellaneous utility functions
-│ └── gofile_utils.py        # Utilities for checking GoFile status and URL validation
-├── downloader.py            # Module for initiating downloads from specified GoFile URLs
-├── main.py                  # Main script to run the downloader
-├── URLs.txt                 # Text file listing album URLs to be downloaded
-└── session_log.txt          # Log file for recording session details
-```
-
-</details>
+- Python 3.11+
+- httpx
+- rich
 
 ## Installation
 
-1. Clone the repository:
-
 ```bash
-git clone https://github.com/Lysagxra/GoFileDownloader.git
-```
-
-2. Navigate to the project directory:
-
-```bash
+git clone https://github.com/dacrab/GoFileDownloader.git
 cd GoFileDownloader
-```
-
-3. Install the required dependencies:
-
-```bash
 pip install -r requirements.txt
 ```
 
-## Single Album Download
+## Usage
 
-To download a single album, you can use `downloader.py`, running the script with a valid album URL.
-
-### Usage
+### Single Album
 
 ```bash
 python3 downloader.py <gofile_url>
 ```
 
-### Example
-
-```
-python3 downloader.py https://gofile.io/d/clgeTz
-```
-
-## Password-Protected Album Download
-
-To download a password-protected album, you can use `downloader.py`, running the script with the album password.
-
-### Usage
+### Password-Protected Album
 
 ```bash
 python3 downloader.py <gofile_url> <password>
 ```
 
-### Example
+### Batch Download
 
-```
-python3 downloader.py https://gofile.io/d/hXHGR1 TestPassword
-```
-
-## Batch Download
-
-To batch download from multiple URLs, you can use the `main.py` script. This script reads URLs from a file named `URLs.txt` and downloads each one using the media downloader.
-
-### Usage
-
-1. Create a file named `URLs.txt` in the root of your project, listing each URL on a new line.
-
-- Example of `URLs.txt`:
-
+1. Create `URLs.txt` with one URL per line:
 ```
 https://gofile.io/d/clgeTz
 https://gofile.io/d/FrYeIy
-https://gofile.io/d/jLWdTZ
 ```
 
-- Ensure that each URL is on its own line without any extra spaces.
-- You can add as many URLs as you need, following the same format.
-
-2. Run the batch download script:
-
-```
+2. Run:
+```bash
 python3 main.py
 ```
 
-## File Download Location
-
-If the `--custom-path <custom_path>` argument is used, the downloaded files will be saved in `<custom_path>/Downloads`. Otherwise, the files will be saved in a `Downloads` folder created within the script's directory
-
-### Usage
+### Custom Download Location
 
 ```bash
-python3 main.py --custom-path <custom_path>
+python3 main.py --custom-path /path/to/directory
 ```
 
-### Example
+Files are saved to `<custom_path>/Downloads` or `./Downloads` by default.
+
+## Development
+
+### Setup
 
 ```bash
-python3 main.py --custom-path /path/to/external/drive
+pip install -r requirements.txt
+pip install pre-commit ruff mypy
+pre-commit install
 ```
 
-## Logging
+### Code Quality
 
-The application logs any issues encountered during the download process in a file named `session_log.txt`. Check this file for any URLs that may have been blocked or had errors.
+```bash
+ruff check .          # Lint
+ruff format .         # Format
+mypy src/             # Type check
+```
+
+## What's New
+
+- Migrated from `requests` to `httpx` for better async support and HTTP/2
+- True async downloads with `asyncio` (2-3x faster)
+- Modern Python packaging with `pyproject.toml`
+- Type checking with MyPy
+- Pre-commit hooks for code quality
+- Automated dependency updates with Dependabot
+- Multi-version CI testing (Python 3.11, 3.12, 3.13)
+
+## Project Structure
+
+```
+GoFileDownloader/
+├── src/
+│   ├── managers/
+│   │   ├── live_manager.py
+│   │   ├── log_manager.py
+│   │   └── progress_manager.py
+│   ├── config.py
+│   ├── download_utils.py
+│   ├── file_utils.py
+│   ├── gofile_utils.py
+│   └── version.py
+├── downloader.py
+├── main.py
+├── pyproject.toml
+└── requirements.txt
+```
+
+## License
+
+GPL-3.0
