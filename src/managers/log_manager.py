@@ -1,6 +1,7 @@
 import shutil
 from collections import deque
 from datetime import UTC, datetime
+from typing import Any, cast
 
 from rich.box import SIMPLE
 from rich.panel import Panel
@@ -11,9 +12,10 @@ from src.config import LOG_MANAGER_CONFIG
 
 class LoggerTable:
     def __init__(self, max_rows: int = 4) -> None:
-        self.row_buffer = deque(maxlen=max_rows)
-        self.title_color = LOG_MANAGER_CONFIG["colors"]["title_color"]
-        self.border_style = LOG_MANAGER_CONFIG["colors"]["border_color"]
+        self.row_buffer: deque[tuple[str, str, str]] = deque(maxlen=max_rows)
+        colors = cast(dict[str, str], LOG_MANAGER_CONFIG["colors"])
+        self.title_color: str = colors["title_color"]
+        self.border_style: str = colors["border_color"]
         self.table = self._create_table()
 
     def log(self, event: str, details: str) -> None:
@@ -30,25 +32,27 @@ class LoggerTable:
         )
 
     def _calculate_column_widths(
-        self, min_column_widths: dict, padding: int = 10
-    ) -> dict:
+        self, min_column_widths: dict[str, Any], padding: int = 10
+    ) -> dict[str, int]:
         terminal_width, _ = shutil.get_terminal_size()
         available_width = terminal_width - padding
         total_min_width = sum(min_column_widths.values())
 
         if available_width < total_min_width:
-            return min_column_widths
+            return {k: int(v) for k, v in min_column_widths.items()}
 
         remaining_width = available_width - total_min_width
         return {
-            column: min_width + remaining_width // len(min_column_widths)
+            column: int(min_width) + remaining_width // len(min_column_widths)
             for column, min_width in min_column_widths.items()
         }
 
     def _create_table(self) -> Table:
-        min_column_widths = LOG_MANAGER_CONFIG["min_column_widths"]
+        min_column_widths = cast(
+            dict[str, Any], LOG_MANAGER_CONFIG["min_column_widths"]
+        )
         column_widths = self._calculate_column_widths(min_column_widths)
-        column_styles = LOG_MANAGER_CONFIG["column_styles"]
+        column_styles = cast(dict[str, Any], LOG_MANAGER_CONFIG["column_styles"])
         column_names = ["Timestamp", "Event", "Details"]
 
         new_table = Table(
@@ -62,7 +66,7 @@ class LoggerTable:
         for name in column_names:
             new_table.add_column(
                 f"[{self.title_color}]{name}",
-                style=column_styles[name],
+                style=str(column_styles[name]),
                 width=column_widths[name],
             )
 

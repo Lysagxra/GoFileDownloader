@@ -11,3 +11,5 @@ venv/
 env/
 Downloads/
 URLs.txt
+.mypy_cache/
+.ruff_cache/
