@@ -1,6 +1,6 @@
 import shutil
 from collections import deque
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from rich.box import SIMPLE
 from rich.panel import Panel
@@ -17,7 +17,7 @@ class LoggerTable:
         self.table = self._create_table()
 
     def log(self, event: str, details: str) -> None:
-        timestamp = datetime.now(timezone.utc).strftime("%H:%M:%S")
+        timestamp = datetime.now(UTC).strftime("%H:%M:%S")
         self.row_buffer.append((timestamp, event, details))
 
     def render_log_panel(self, panel_width: int = 40) -> Panel:
@@ -29,7 +29,9 @@ class LoggerTable:
             width=2 * panel_width,
         )
 
-    def _calculate_column_widths(self, min_column_widths: dict, padding: int = 10) -> dict:
+    def _calculate_column_widths(
+        self, min_column_widths: dict, padding: int = 10
+    ) -> dict:
         terminal_width, _ = shutil.get_terminal_size()
         available_width = terminal_width - padding
         total_min_width = sum(min_column_widths.values())

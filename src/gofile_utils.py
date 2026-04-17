@@ -33,7 +33,9 @@ def generate_website_token(account_token: str) -> str:
 
 def check_response_status(response: httpx.Response, filename: str) -> bool:
     if response.status_code != HTTP_STATUS_OK:
-        logging.error(f"Invalid response for {filename}. Status code: {response.status_code}")
+        logging.error(
+            f"Invalid response for {filename}. Status code: {response.status_code}"
+        )
         return False
     return True
 

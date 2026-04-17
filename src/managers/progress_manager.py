@@ -2,7 +2,13 @@ import shutil
 from collections import deque
 
 from rich.panel import Panel
-from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn, TimeRemainingColumn
+from rich.progress import (
+    BarColumn,
+    Progress,
+    SpinnerColumn,
+    TextColumn,
+    TimeRemainingColumn,
+)
 from rich.table import Table
 
 from src.config import PROGRESS_COLUMNS_SEPARATOR, PROGRESS_MANAGER_COLORS
@@ -25,13 +31,24 @@ class ProgressManager:
     def add_overall_task(self, description: str, num_tasks: int) -> None:
         self.num_tasks = num_tasks
         desc = description[:8] + "..." if len(description) > 8 else description
-        self.overall_progress.add_task(f"[{self.color}]{desc}", total=num_tasks, completed=0)
+        self.overall_progress.add_task(
+            f"[{self.color}]{desc}", total=num_tasks, completed=0
+        )
 
     def add_task(self, current_task: int = 0, total: int = 100) -> int:
-        desc = f"[{self.color}]{self.item_description} {current_task + 1}/{self.num_tasks}"
+        desc = (
+            f"[{self.color}]{self.item_description} {current_task + 1}/{self.num_tasks}"
+        )
         return self.task_progress.add_task(desc, total=total)
 
-    def update_task(self, task_id: int, completed: int | None = None, advance: int = 0, *, visible: bool = True) -> None:
+    def update_task(
+        self,
+        task_id: int,
+        completed: int | None = None,
+        advance: int = 0,
+        *,
+        visible: bool = True,
+    ) -> None:
         self.task_progress.update(
             task_id,
             completed=completed if completed is not None else None,
@@ -77,7 +94,11 @@ class ProgressManager:
             self.overall_progress.remove_task(self.overall_buffer.popleft().id)
 
     def _create_progress_bar(self, *, show_time: bool = False) -> Progress:
-        columns = [SpinnerColumn(), BarColumn(), TextColumn("[progress.percentage]{task.percentage:>3.0f}%")]
+        columns = [
+            SpinnerColumn(),
+            BarColumn(),
+            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+        ]
         if show_time:
             columns += [PROGRESS_COLUMNS_SEPARATOR, TimeRemainingColumn()]
         return Progress("{task.description}", *columns)

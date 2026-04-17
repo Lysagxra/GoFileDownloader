@@ -34,4 +34,6 @@ async def save_file_with_progress(
             if chunk:
                 file.write(chunk)
                 total_downloaded += len(chunk)
-                progress_manager.update_task(task, completed=(total_downloaded / file_size) * 100)
+                progress_manager.update_task(
+                    task, completed=(total_downloaded / file_size) * 100
+                )

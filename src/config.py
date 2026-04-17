@@ -19,7 +19,11 @@ PROGRESS_MANAGER_COLORS = {
 LOG_MANAGER_CONFIG = {
     "colors": {"title_color": "light_cyan3", "border_color": "cyan"},
     "min_column_widths": {"Timestamp": 10, "Event": 15, "Details": 30},
-    "column_styles": {"Timestamp": "pale_turquoise4", "Event": "pale_turquoise1", "Details": "pale_turquoise4"},
+    "column_styles": {
+        "Timestamp": "pale_turquoise4",
+        "Event": "pale_turquoise1",
+        "Details": "pale_turquoise4",
+    },
 }
 
 MAX_WORKERS = 3
@@ -52,12 +56,16 @@ BASE_HEADERS = {
 
 def parse_arguments(*, common_only: bool = False) -> Namespace:
     parser = ArgumentParser(description="GoFile Downloader")
-    
+
     if not common_only:
         parser.add_argument("url", type=str, help="The URL to process")
-        parser.add_argument("password", nargs="?", type=str, help="The password for the download.")
-    
-    parser.add_argument("--custom-path", type=str, default=None, help="Custom download directory")
+        parser.add_argument(
+            "password", nargs="?", type=str, help="The password for the download."
+        )
+
+    parser.add_argument(
+        "--custom-path", type=str, default=None, help="Custom download directory"
+    )
     parser.add_argument("--version", action="version", version=get_version_string())
-    
+
     return parser.parse_args()
