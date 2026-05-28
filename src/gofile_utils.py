@@ -10,7 +10,16 @@ from urllib.parse import urlencode
 
 import requests
 
-from .config import GOFILE_API, GOFILE_API_ACCOUNTS, HTTP_STATUS_OK
+from .config import (
+    COMMON_HEADERS,
+    GOFILE_API,
+    GOFILE_API_ACCOUNTS,
+    HTTP_STATUS_OK,
+    LOCALE,
+    TOKEN_SECRET,
+    TOKEN_WINDOW_SEC,
+    USER_AGENT,
+)
 
 
 def get_content_id(url: str) -> str | None:
@@ -50,8 +59,10 @@ def generate_content_url(content_id: str, password: str | None = None) -> None:
 
 def generate_website_token(account_token: str) -> str:
     """Generate the dynamic X-Website-Token."""
-    time_window = str(int(time()) // 14400)
-    token_seed = f"Mozilla/5.0::en-US::{account_token}::{time_window}::5d4f7g8sd45fsd"
+    time_window = str(int(time()) // TOKEN_WINDOW_SEC)
+    token_seed = (
+        f"{USER_AGENT}::{LOCALE}::{account_token}::{time_window}::{TOKEN_SECRET}"
+    )
     return sha256(token_seed.encode()).hexdigest()
 
 
@@ -64,8 +75,7 @@ def check_response_status(response: requests.Response, filename: str) -> bool:
 
     if response_is_invalid:
         message = (
-             f"Invalid response for {filename}. "
-            "Status code: {response.status_code}"
+            f"Invalid response for {filename}. Status code: {{response.status_code}}"
         )
         logging.error(message)
         return False
@@ -75,17 +85,10 @@ def check_response_status(response: requests.Response, filename: str) -> bool:
 
 def get_account_token() -> str:
     """Retrieve the access token for the created account."""
-    headers = {
-        "User-Agent": "Mozilla/5.0",
-        "Accept-Encoding": "gzip",
-        "Accept": "*/*",
-        "Connection": "keep-alive",
-    }
-
     account_response = requests.post(
         GOFILE_API_ACCOUNTS,
-        headers=headers,
-        timeout=15,
+        headers=COMMON_HEADERS,
+        timeout=10,
     ).json()
 
     if account_response["status"] != "ok":

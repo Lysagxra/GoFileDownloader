@@ -88,12 +88,22 @@ LARGE_FILE_CHUNK_SIZE = 512 * KB
 # HTTP status codes
 HTTP_STATUS_OK = 200
 
-# Base headers common for all requests
-BASE_HEADERS = {
-    "User-Agent": "Mozilla/5.0",
+USER_AGENT = "Mozilla/5.0"       # Browser identifier.
+LOCALE = "en-US"                 # Request locale.
+TOKEN_WINDOW_SEC = 14400         # 4-hour window.
+TOKEN_SECRET = "g4f8fd9f12h14g"  # Token seed.  # noqa: S105
+
+# Headers shared across all requests
+COMMON_HEADERS = {
+    "User-Agent": USER_AGENT,
     "Accept-Encoding": "gzip",
     "Accept": "*/*",
     "Connection": "keep-alive",
+}
+
+# Extended headers to mimic browser requests
+EXTENDED_HEADERS = {
+    **COMMON_HEADERS,
     "Sec-Fetch-Dest": "empty",
     "Sec-Fetch-Mode": "cors",
     "Sec-Fetch-Site": "same-site",

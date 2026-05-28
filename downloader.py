@@ -18,9 +18,10 @@ from typing import TYPE_CHECKING
 import requests
 
 from src.config import (
-    BASE_HEADERS,
     DEFAULT_USAGE,
     DOWNLOAD_FOLDER,
+    EXTENDED_HEADERS,
+    LOCALE,
     MAX_WORKERS,
     PASSWORD_USAGE,
     parse_arguments,
@@ -119,13 +120,13 @@ class Downloader:
     ) -> dict:
         """Prepare the HTTP headers for the request."""
         # Base headers common for all requests
-        headers = BASE_HEADERS
+        headers = EXTENDED_HEADERS
 
         # Add authentication headers if required
         if include_auth:
             headers["Authorization"] = f"Bearer {self.token}"
             headers["X-Website-Token"] = generate_website_token(self.token)
-            headers["X-BL"] = "en-US"
+            headers["X-BL"] = LOCALE
 
         else:
             # Add Referer and Origin headers if URL is provided
