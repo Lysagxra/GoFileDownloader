@@ -91,7 +91,7 @@ HTTP_STATUS_OK = 200
 USER_AGENT = "Mozilla/5.0"       # Browser identifier.
 LOCALE = "en-US"                 # Request locale.
 TOKEN_WINDOW_SEC = 14400         # 4-hour window.
-TOKEN_SECRET = "g4f8fd9f12h14g"  # Token seed.  # noqa: S105
+TOKEN_SECRET = "9844d94d963d30"  # Token seed.  # noqa: S105
 
 # Headers shared across all requests
 COMMON_HEADERS = {
