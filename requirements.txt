@@ -1,2 +1,2 @@
-Requests==2.32.5
-rich==14.3.3
+Requests==2.34.2
+rich==15.0.0
